@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
+import ApplyForm from "./ApplyForm"; // ✅ import
 
 import { Card, Button, Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 
@@ -7,28 +8,29 @@ const Jobs = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showApplyFor, setShowApplyFor] = useState(null); // ✅
 
   useEffect(() => {
-  const fetchJobs = async () => {
-    try {
-      const res = await api.get("/jobs/list.php");
-      console.log("API রেসপন্স:", res.data); // ডিবাগিং জন্য
+    const fetchJobs = async () => {
+      try {
+        const res = await api.get("/jobs/list.php");
+        console.log("API রেসপন্স:", res.data);
 
-      if (res.data.success) {
-        setJobs(res.data.jobs || []);
-      } else {
-        setError(res.data.message || "কোন চাকরি পাওয়া যায়নি");
+        if (res.data.success) {
+          setJobs(res.data.jobs || []);
+        } else {
+          setError(res.data.message || "কোন চাকরি পাওয়া যায়নি");
+        }
+      } catch (err) {
+        console.error("এরর:", err);
+        setError("চাকরি লোড করতে সমস্যা হয়েছে");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("এরর:", err);
-      setError("চাকরি লোড করতে সমস্যা হয়েছে");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchJobs();
-}, []);
+    fetchJobs();
+  }, []);
 
   return (
     <Container className="mt-4">
@@ -55,7 +57,20 @@ const Jobs = () => {
                 <p><strong>Type:</strong> {job.job_type}</p>
                 {job.salary && <p><strong>Salary:</strong> ৳{job.salary}</p>}
                 {job.deadline && <p><strong>Deadline:</strong> {job.deadline}</p>}
-                <Button variant="primary">Apply Now</Button>
+
+                <Button
+                  variant="primary"
+                  onClick={() => setShowApplyFor(showApplyFor === job.id ? null : job.id)}
+                >
+                  {showApplyFor === job.id ? "Close Form" : "Apply Now"}
+                </Button>
+
+                {/* ✅ Apply Form show only for current job */}
+                {showApplyFor === job.id && (
+                  <div className="mt-3">
+                    <ApplyForm jobId={job.id} />
+                  </div>
+                )}
               </Card.Body>
             </Card>
           </Col>

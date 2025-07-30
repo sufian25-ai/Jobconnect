@@ -33,9 +33,7 @@ const Navigation = () => {
               <Nav.Link as={Link} to="/dashboard">Company Dashboard</Nav.Link>
             )}
 
-            {user?.role === "admin" && (
-              <Nav.Link as={Link} to="/admin">Admin Panel</Nav.Link>
-            )}
+            
           </Nav>
 
           <Nav className="ms-auto align-items-center">
