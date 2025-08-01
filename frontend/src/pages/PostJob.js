@@ -20,20 +20,30 @@ const PostJob = () => {
 
   const handleChange = (e) => {
     setJob({ ...job, [e.target.name]: e.target.value });
+    
   };
+  
 
   const handleSubmit = async (e) => {
+    console.log("Submitting Job:", {
+  ...job,
+  company_id: user?.id,
+});
+
     e.preventDefault();
 
     try {
+      
       const res = await api.post("/jobs/post.php", {
         ...job,
         company_id: user?.id,
       });
 
       if (res.data.success) {
+        console.log(res.data);
+
         setMessage("Job posted successfully!");
-        setTimeout(() => navigate("/dashboard"), 1500);
+        setTimeout(() => navigate("/Jobs"), 1500);
       } else {
         setMessage("Failed to post job.");
       }

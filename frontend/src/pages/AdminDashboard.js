@@ -19,7 +19,7 @@ const AdminDashboard = () => {
     const admin = safeParseJSON(adminRaw);
     console.log("Admin from localStorage:", admin);
     if (!admin) {
-      navigate("/admin/login");
+      navigate("/admin/dashboard");
     }
   }, [navigate]);
 

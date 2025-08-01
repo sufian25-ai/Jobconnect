@@ -1,0 +1,27 @@
+.about-page {
+  background-color: #f9f9f9;
+}
+
+.about-hero {
+  background: linear-gradient(to right, #0d6efd, #0a58ca);
+}
+
+.about-hero h1,
+.about-hero p {
+  margin: 0;
+}
+
+.card {
+  border: none;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+img.rounded-circle {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}

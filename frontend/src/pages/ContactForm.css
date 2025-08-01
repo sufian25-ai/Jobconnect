@@ -1,0 +1,17 @@
+.contact-form-section {
+  background: #f9fbfd;
+}
+
+.contact-title {
+  font-weight: 600;
+  font-size: 2rem;
+}
+
+.contact-form {
+  border-left: 5px solid #0d6efd;
+  transition: box-shadow 0.3s ease;
+}
+
+.contact-form:hover {
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}

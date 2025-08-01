@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Button, Alert, Spinner } from "react-bootstrap";
-import services from "../services/api";
+import api from "../services/api";
 
 const ApplyForm = ({ jobId }) => {
   const [message, setMessage] = useState("");
@@ -13,7 +13,7 @@ const ApplyForm = ({ jobId }) => {
     setFeedback({ type: "", msg: "" });
 
     try {
-      const res = await services.post("/applications/apply.php", {
+      const res = await api.post("/applications/apply.php", {
         job_id: jobId,
         message,
       });

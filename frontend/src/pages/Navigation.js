@@ -1,6 +1,7 @@
 import React from "react";
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { Navbar, Nav, Container, Button, NavDropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { FaUserCircle } from "react-icons/fa";
 
 const Navigation = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -12,46 +13,47 @@ const Navigation = () => {
   };
 
   return (
-    <Navbar bg="light" expand="lg" className="shadow-sm">
+    <Navbar bg="light" expand="lg" className="shadow-sm sticky-top">
       <Container>
-        <Navbar.Brand as={Link} to="/" className="fw-bold text-primary">
+        <Navbar.Brand as={Link} to="/" className="fw-bold text-primary fs-4">
           JobConnect
         </Navbar.Brand>
+
         <Navbar.Toggle aria-controls="main-navbar" />
-        <Navbar.Collapse id="main-navbar">
-          <Nav className="me-auto">
+        <Navbar.Collapse id="main-navbar" className="justify-content-between">
+          {/* Left Nav */}
+          <Nav className="me-auto gap-2">
             <Nav.Link as={Link} to="/">Home</Nav.Link>
             <Nav.Link as={Link} to="/Jobs">Jobs</Nav.Link>
-            </Nav>
-           
-           <Nav className="ml-auto">
-            {user?.role === "user" && (
-              <Nav.Link as={Link} to="/Profile">My Profile</Nav.Link>
-            )}
-
-            {user?.role === "company" && (
-              <Nav.Link as={Link} to="/dashboard">Company Dashboard</Nav.Link>
-            )}
-
-            
+            <Nav.Link as={Link} to="/Contact">Contact</Nav.Link>
+            <Nav.Link as={Link} to="/About">About</Nav.Link>
           </Nav>
 
-          <Nav className="ms-auto align-items-center">
+          {/* Right Nav */}
+          <Nav className="d-flex align-items-center gap-3">
             {!user ? (
               <>
                 <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/register">Register</Nav.Link>
+                <Nav.Link as={Link} to="/register">
+                  <Button variant="primary" size="sm">Register</Button>
+                </Nav.Link>
               </>
             ) : (
               <>
-                <span className="me-2 text-secondary">Hi, {user.name}</span>
-                <Button variant="outline-danger" size="sm" onClick={logout}>
-                  Logout
-                </Button>
+                <FaUserCircle size={22} className="text-secondary" />
+                <NavDropdown title={`Hi, ${user.name}`} id="user-nav-dropdown">
+                  {user.role === "user" && (
+                    <NavDropdown.Item as={Link} to="/Profile">My Profile</NavDropdown.Item>
+                  )}
+                  {user.role === "company" && (
+                    <NavDropdown.Item as={Link} to="/dashboard">Company Dashboard</NavDropdown.Item>
+                  )}
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={logout}>Logout</NavDropdown.Item>
+                </NavDropdown>
               </>
             )}
           </Nav>
-           
         </Navbar.Collapse>
       </Container>
     </Navbar>

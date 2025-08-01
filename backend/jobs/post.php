@@ -1,28 +1,88 @@
 <?php
+header('Content-Type: application/json');
 include('../session/start.php');
-include('../config/db.php');
+include('../config/db.php'); // ধরে নিচ্ছি এখানে $conn হলো PDO অবজেক্ট
 
-$data = json_decode(file_get_contents("php://input"), true);
+// ইনপুট নেওয়া
+$input = json_decode(file_get_contents("php://input"), true);
 
-$title = $data['title'] ?? '';
-$desc = $data['description'] ?? '';
-$location = $data['location'] ?? '';
-$type = $data['job_type'] ?? 'Full-time';
-$salary = $data['salary'] ?? null;
-$deadline = $data['deadline'] ?? null;
-$company_id = $data['company_id'] ?? 0;
+// ট্রিম করে নেওয়া
+$title = trim($input['title'] ?? '');
+$desc = trim($input['description'] ?? '');
+$location = trim($input['location'] ?? '');
+$type = trim($input['job_type'] ?? 'Full-time');
+$salary = isset($input['salary']) && $input['salary'] !== '' ? $input['salary'] : null;
+$deadline = trim($input['deadline'] ?? '') ?: null;
+$company_id = isset($input['company_id']) ? intval($input['company_id']) : 0;
 
-if ($title && $desc && $location && $company_id) {
-    $sql = "INSERT INTO jobs (company_id, title, description, location, job_type, salary, deadline) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("issssds", $company_id, $title, $desc, $location, $type, $salary, $deadline);
-    
-    if ($stmt->execute()) {
-        echo json_encode(["success" => true]);
-    } else {
-        echo json_encode(["success" => false, "error" => "Insert failed"]);
+// validation
+$errors = [];
+if (!$company_id) $errors[] = "company_id is required and must be a positive integer.";
+if ($title === '') $errors[] = "title is required.";
+if ($desc === '') $errors[] = "description is required.";
+if ($location === '') $errors[] = "location is required.";
+
+// deadline ফরম্যাট চেক (যদি দেওয়া থাকে)
+if ($deadline !== null) {
+    $d = DateTime::createFromFormat('Y-m-d', $deadline);
+    if (!$d || $d->format('Y-m-d') !== $deadline) {
+        $errors[] = "Invalid deadline format. Use YYYY-MM-DD.";
     }
-} else {
-    echo json_encode(["success" => false, "error" => "Missing fields"]);
+}
+
+if (!empty($errors)) {
+    echo json_encode([
+        "success" => false,
+        "error" => "Validation failed",
+        "details" => $errors
+    ]);
+    exit;
+}
+
+try {
+    $sql = "INSERT INTO jobs (company_id, title, description, location, job_type, salary, deadline)
+            VALUES (:company_id, :title, :description, :location, :job_type, :salary, :deadline)";
+
+    $stmt = $conn->prepare($sql);
+
+    // bind values, null handling
+    $stmt->bindValue(':company_id', $company_id, PDO::PARAM_INT);
+    $stmt->bindValue(':title', $title, PDO::PARAM_STR);
+    $stmt->bindValue(':description', $desc, PDO::PARAM_STR);
+    $stmt->bindValue(':location', $location, PDO::PARAM_STR);
+    $stmt->bindValue(':job_type', $type, PDO::PARAM_STR);
+
+    if ($salary !== null && is_numeric($salary)) {
+        $stmt->bindValue(':salary', floatval($salary));
+    } else {
+        $stmt->bindValue(':salary', null, PDO::PARAM_NULL);
+    }
+
+    if ($deadline !== null) {
+        $stmt->bindValue(':deadline', $deadline, PDO::PARAM_STR);
+    } else {
+        $stmt->bindValue(':deadline', null, PDO::PARAM_NULL);
+    }
+
+    $exec = $stmt->execute();
+
+    if ($exec) {
+        echo json_encode([
+            "success" => true,
+            "insert_id" => $conn->lastInsertId()
+        ]);
+    } else {
+        $info = $stmt->errorInfo();
+        echo json_encode([
+            "success" => false,
+            "error" => "Insert failed",
+            "details" => $info[2] ?? 'Unknown error'
+        ]);
+    }
+} catch (PDOException $e) {
+    echo json_encode([
+        "success" => false,
+        "error" => "Database error",
+        "details" => $e->getMessage()
+    ]);
 }
