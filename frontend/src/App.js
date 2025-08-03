@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import ContactForm from "./pages/ContactForm";
 import AboutPage from "./about/AboutPage";
-import AdminLogin from "./pages/AdminLogin";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import Navigation from "./pages/Navigation";
 import Register from "./pages/Register";
@@ -17,9 +17,18 @@ import ApplyForm from "./pages/ApplyForm";
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Footer from "./Footer/Footer";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 
 function App() {
+
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      once: true
+    });
+  }, []);
   return (
     
     
@@ -29,7 +38,6 @@ function App() {
       <Routes>
 
       {/* ✅ Admin Routes */}
-        <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
       {/* ✅ User Routes */}

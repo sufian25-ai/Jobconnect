@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import ApplyForm from "./ApplyForm";
-
+import "./Jobs.css";
 import {
   Card,
   Button,
@@ -11,28 +11,49 @@ import {
   Spinner,
   Alert,
   Badge,
+  Form,
+  InputGroup,
 } from "react-bootstrap";
-import { FaMapMarkerAlt, FaBriefcase, FaClock, FaMoneyBillWave } from "react-icons/fa";
-import { BsBuilding } from "react-icons/bs";
+import {
+  FaMapMarkerAlt,
+  FaBriefcase,
+  FaClock,
+  FaMoneyBillWave,
+  FaSearch,
+  FaFilter,
+} from "react-icons/fa";
+import { BsBuilding, BsCalendarDate } from "react-icons/bs";
+import { FiExternalLink } from "react-icons/fi";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Jobs = () => {
   const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showApplyFor, setShowApplyFor] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
+    jobType: "",
+    location: "",
+    salary: "",
+  });
 
   useEffect(() => {
+    AOS.init({ duration: 800 });
     const fetchJobs = async () => {
       try {
         const res = await api.get("/jobs/list.php");
         if (res.data.success) {
           setJobs(res.data.jobs || []);
+          setFilteredJobs(res.data.jobs || []);
         } else {
-          setError(res.data.message || "কোন চাকরি পাওয়া যায়নি");
+          setError(res.data.message || "No jobs found");
         }
       } catch (err) {
-        console.error("এরর:", err);
-        setError("চাকরি লোড করতে সমস্যা হয়েছে");
+        console.error("Error:", err);
+        setError("Failed to load jobs");
       } finally {
         setLoading(false);
       }
@@ -41,83 +62,281 @@ const Jobs = () => {
     fetchJobs();
   }, []);
 
+  useEffect(() => {
+    let results = jobs.filter((job) => {
+      return (
+        job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+
+    if (filters.jobType) {
+      results = results.filter((job) => job.job_type === filters.jobType);
+    }
+
+    if (filters.location) {
+      results = results.filter((job) =>
+        job.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
+    if (filters.salary) {
+      results = results.filter((job) => {
+        const jobSalary = parseInt(job.salary.replace(/,/g, ""));
+        return jobSalary >= parseInt(filters.salary);
+      });
+    }
+
+    setFilteredJobs(results);
+  }, [searchTerm, filters, jobs]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  const resetFilters = () => {
+    setSearchTerm("");
+    setFilters({
+      jobType: "",
+      location: "",
+      salary: "",
+    });
+  };
+
   return (
-     <div className="about-page">
-      <div className="about-hero text-white text-center py-5">
-        <h1 className="display-4">All Job Openings</h1>
-        <p className="lead">Connecting Talent with Opportunity</p>
+    <div className="jobs-page">
+      {/* Hero Section */}
+      <div className="jobs-hero text-white text-center py-5 position-relative">
+        <div className="overlay"></div>
+        <Container className="position-relative z-index-1">
+          <h1 className="display-4 fw-bold mb-3">Find Job Here</h1>
+          <p className="lead mb-4">Browse thousands of job listings from top companies</p>
+          
+          {/* Search Bar */}
+          <div className="job-search-bar mx-auto" style={{ maxWidth: "800px" }}>
+            <InputGroup className="mb-3 shadow-lg">
+              <InputGroup.Text className="bg-white border-end-0">
+                <FaSearch className="text-muted" />
+              </InputGroup.Text>
+              <Form.Control
+                type="text"
+                placeholder="Search by job title, company, or keywords"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="border-start-0"
+              />
+              <Button variant="primary">
+                <FaSearch className="me-2" />
+                Search
+              </Button>
+            </InputGroup>
+          </div>
+        </Container>
       </div>
-    <Container className="my-5">
-      <h2 className="text-center mb-4">🔥 Latest Job Openings</h2>
 
-      {loading && (
-        <div className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
-        </div>
-      )}
-
-      {error && <Alert variant="danger">{error}</Alert>}
-
-      <Row>
-        {jobs.map((job) => (
-          <Col md={6} lg={4} className="mb-4" key={job.id}>
-            <Card className="h-100 shadow-sm border-0">
-              <Card.Body>
-                {/* Title & Company */}
-                <Card.Title className="d-flex justify-content-between align-items-start">
-                  <span>{job.title}</span>
-                  {job.job_type && (
-                    <Badge bg="info" className="text-uppercase">
-                      {job.job_type}
-                    </Badge>
-                  )}
-                </Card.Title>
-
-                <Card.Subtitle className="mb-2 text-muted">
-                  <BsBuilding className="me-1" /> {job.company || "Unknown Company"}
-                </Card.Subtitle>
-
-                {/* Meta Info */}
-                <div className="mb-2 text-secondary" style={{ fontSize: "0.9rem" }}>
-                  <FaMapMarkerAlt className="me-1" /> {job.location} <br />
-                  <FaMoneyBillWave className="me-1" /> ৳{job.salary || "Negotiable"} <br />
-                  <FaClock className="me-1" /> Deadline: {job.deadline}
-                </div>
-
-                {/* Description */}
-                <Card.Text>
-                  {job.description?.substring(0, 100)}...
-                </Card.Text>
-
-                {/* Apply Button */}
-                <Button
-                  variant={showApplyFor === job.id ? "danger" : "primary"}
-                  size="sm"
-                  className="mt-2"
-                  onClick={() =>
-                    setShowApplyFor(showApplyFor === job.id ? null : job.id)
-                  }
+      <Container className="my-5">
+        {/* Filter Section */}
+        <div className="filter-section mb-5 p-4 bg-light rounded-3 shadow-sm">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="mb-0">
+              <FaFilter className="me-2" />
+              Filter Jobs
+            </h5>
+            <Button variant="link" onClick={resetFilters}>
+              Reset Filters
+            </Button>
+          </div>
+          <Row>
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Job Type</Form.Label>
+                <Form.Select
+                  name="jobType"
+                  value={filters.jobType}
+                  onChange={handleFilterChange}
                 >
-                  {showApplyFor === job.id ? "Close Form" : "Apply Now"}
-                </Button>
+                  <option value="">All Types</option>
+                  <option value="Full-time">Full-time</option>
+                  <option value="Part-time">Part-time</option>
+                  <option value="Remote">Remote</option>
+                  <option value="Contract">Contract</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Location</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="City or Country"
+                  name="location"
+                  value={filters.location}
+                  onChange={handleFilterChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Minimum Salary (৳)</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Minimum salary"
+                  name="salary"
+                  value={filters.salary}
+                  onChange={handleFilterChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        </div>
 
-                {/* Apply Form */}
-                {showApplyFor === job.id && (
-                  <div className="mt-3">
-                    <ApplyForm jobId={job.id} />
+        {/* Results Count */}
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h4 className="mb-0">
+            {filteredJobs.length} {filteredJobs.length === 1 ? "Job" : "Jobs"} Found
+          </h4>
+          <div className="text-muted">
+            Sorted by: <strong>Newest First</strong>
+          </div>
+        </div>
+
+        {loading && (
+          <div className="text-center py-5">
+            <Spinner animation="border" variant="primary" size="lg" />
+            <p className="mt-3">Loading job listings...</p>
+          </div>
+        )}
+
+        {error && (
+          <Alert variant="danger" className="text-center">
+            {error}
+          </Alert>
+        )}
+
+        {!loading && !error && filteredJobs.length === 0 && (
+          <div className="text-center py-5">
+            {/* <img
+              src="/images/no-jobs.svg"
+              alt="No jobs found"
+              style={{ maxWidth: "300px" }}
+              className="img-fluid mb-4"
+            /> */}
+            <h4 className="mb-3">No jobs match your criteria</h4>
+            <p className="text-muted mb-4">
+              Try adjusting your filters or search terms
+            </p>
+            <Button variant="primary" onClick={resetFilters}>
+              Reset Filters
+            </Button>
+          </div>
+        )}
+
+        <Row className="g-4">
+          {filteredJobs.map((job) => (
+            <Col md={6} lg={4} key={job.id} data-aos="fade-up">
+              <Card className="h-100 job-card shadow-sm border-0">
+                <Card.Body className="d-flex flex-column">
+                  {/* Company Logo & Badges
+                  <div className="d-flex align-items-start mb-3">
+                    <div className="company-logo me-3">
+                      <img
+                        src={job.company_logo || "/images/default-company.png"}
+                        alt={job.company}
+                        className="img-fluid rounded"
+                      />
+                    </div>
+                    <div className="flex-grow-1">
+                      <div className="d-flex justify-content-between">
+                        <Badge bg="light" text="dark" className="text-uppercase">
+                          {job.job_type || "Full-time"}
+                        </Badge>
+                        {job.is_featured && (
+                          <Badge bg="warning" text="dark">
+                            Featured
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div> */}
+
+                  {/* Job Title & Company */}
+                  <Card.Title className="mb-2">{job.title}</Card.Title>
+                  <Card.Subtitle className="mb-3 text-muted">
+                    <BsBuilding className="me-1" /> {job.company || "Confidential"}
+                  </Card.Subtitle>
+
+                  {/* Job Meta */}
+                  <ul className="job-meta list-unstyled mb-3">
+                    <li>
+                      <FaMapMarkerAlt className="me-2" />
+                      {job.location}
+                    </li>
+                    <li>
+                      <FaMoneyBillWave className="me-2" />
+                      {job.salary ? `৳${job.salary}` : "Salary negotiable"}
+                    </li>
+                    <li>
+                      <FaBriefcase className="me-2" />
+                      {job.experience || "Experience not specified"}
+                    </li>
+                    <li>
+                      <FaClock className="me-2" />
+                      Apply before: {job.deadline}
+                    </li>
+                  </ul>
+
+                  {/* Job Description */}
+                  <Card.Text className="flex-grow-1 mb-4">
+                    {job.description?.substring(0, 150)}...
+                  </Card.Text>
+
+                  {/* Action Buttons */}
+                  <div className="d-flex gap-2 mt-auto">
+                    <Button
+                      variant={showApplyFor === job.id ? "outline-danger" : "primary"}
+                      className="flex-grow-1"
+                      onClick={() =>
+                        setShowApplyFor(showApplyFor === job.id ? null : job.id)
+                      }
+                    >
+                      {showApplyFor === job.id ? "Cancel" : "Apply Now"}
+                    </Button>
+                    <Button
+                      variant="outline-secondary"
+                      href={`/job/${job.id}`}
+                      className="d-flex align-items-center"
+                    >
+                      <FiExternalLink className="me-1" />
+                      Details
+                    </Button>
                   </div>
-                )}
-              </Card.Body>
 
-              {/* Footer / Post Date */}
-              <Card.Footer className="text-muted text-end small">
-                Posted: {job.posted_date || "Recently"}
-              </Card.Footer>
-            </Card>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+                  {/* Apply Form */}
+                  {showApplyFor === job.id && (
+                    <div className="mt-3">
+                      <ApplyForm jobId={job.id} />
+                    </div>
+                  )}
+                </Card.Body>
+
+                {/* Posted Date */}
+                <Card.Footer className="text-muted small d-flex justify-content-between">
+                  <span>
+                    <BsCalendarDate className="me-1" />
+                    Posted: {job.posted_date || "Recently"}
+                  </span>
+                  <span>Ref: {job.id}</span>
+                </Card.Footer>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Container>
     </div>
   );
 };

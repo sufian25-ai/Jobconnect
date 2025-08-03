@@ -100,7 +100,8 @@ const AboutPage = () => {
         <Row className="text-center">
           <Col>
             <h4>Want to learn more or collaborate with us?</h4>
-            <Button variant="primary" size="lg" className="mt-3">
+            <Button variant="primary" size="lg" href="/register" className="mt-3 ">
+              
               Contact Us
             </Button>
           </Col>

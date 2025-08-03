@@ -20,6 +20,8 @@ const Login = () => {
       if (res.data.success) {
         setMessage("✅ Login successful!");
         localStorage.setItem("user", JSON.stringify(res.data.user));
+       
+        
         setTimeout(() => navigate("/"), 1000);
       }
        else {

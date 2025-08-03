@@ -40,7 +40,6 @@ const PostJob = () => {
       });
 
       if (res.data.success) {
-        console.log(res.data);
 
         setMessage("Job posted successfully!");
         setTimeout(() => navigate("/Jobs"), 1500);
