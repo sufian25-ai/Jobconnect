@@ -15,13 +15,27 @@ if (!$name || !$email || !$password) {
 }
 
 $hashed = password_hash($password, PASSWORD_BCRYPT);
+
+// Check if email already exists
+$checkSql = "SELECT id FROM users WHERE email = ?";
+$checkStmt = $conn->prepare($checkSql);
+$checkStmt->execute([$email]);
+if ($checkStmt->fetch()) {
+    echo json_encode(["error" => "Email already registered"]);
+    exit;
+}
+
 $sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ssss", $name, $email, $hashed, $role);
 
-if ($stmt->execute()) {
-    echo json_encode(["success" => true]);
-} else {
-    echo json_encode(["error" => "Email may already be used"]);
+try {
+    $success = $stmt->execute([ $name, $email, $hashed, $role ]);
+    if ($success) {
+        echo json_encode(["success" => true]);
+    } else {
+        echo json_encode(["error" => "Registration failed"]);
+    }
+} catch (PDOException $e) {
+    echo json_encode(["error" => "Database error: " . $e->getMessage()]);
 }
 ?>

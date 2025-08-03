@@ -13,9 +13,9 @@ $data = json_decode(file_get_contents("php://input"), true);
 $id = $_SESSION['user_id'];
 
 $stmt = $conn->prepare("UPDATE users SET name=?, email=?, skills=?, experience=? WHERE id=?");
-$stmt->bind_param("ssssi", $data['name'], $data['email'], $data['skills'], $data['experience'], $id);
+$sucess->execute([$data['name'], $data['email'], $data['skills'], $data['experience'], $id]);
 
-if ($stmt->execute()) {
+if ($sucess) {
     echo json_encode(["message" => "Profile updated successfully."]);
 } else {
     http_response_code(500);

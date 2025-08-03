@@ -10,9 +10,9 @@ if (!isset($_SESSION['user_id'])) {
 
 $id = $_SESSION['user_id'];
 $stmt = $conn->prepare("SELECT name, email, skills, experience, resume, profile_img FROM users WHERE id=?");
-$stmt->bind_param("i", $id);
-$stmt->execute();
-$result = $stmt->get_result();
+
+$stmt->execute([$id]);
+$result = $stmt->fetch();
 
 echo json_encode($result->fetch_assoc());
 ?>
