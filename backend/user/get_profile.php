@@ -1,18 +1,36 @@
 <?php
 include('../session/start.php');
-require_once('../config/db.php');
+include('../config/db.php');
 
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(["message" => "Unauthorized"]);
+header('Content-Type: application/json');
+
+// সেশন চেক
+if (!isset($_SESSION['user']['id'])) {
+    echo json_encode([
+        "success" => false,
+        "message" => "Not logged in"
+    ]);
     exit;
 }
 
-$id = $_SESSION['user_id'];
-$stmt = $conn->prepare("SELECT name, email, skills, experience, resume, profile_img FROM users WHERE id=?");
+$user_id = $_SESSION['user']['id'];
 
-$stmt->execute([$id]);
-$result = $stmt->fetch();
+// ইউজারের ডেটা আনা
+$sql = "SELECT id, name, email, phone, address, skills, experience, education, bio, linkedin, github, website, resume, profile_img 
+        FROM users WHERE id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->execute([$user_id]);
 
-echo json_encode($result->fetch_assoc());
+if ($stmt->rowCount() > 0) {
+    $profile = $stmt->fetch(PDO::FETCH_ASSOC);
+    echo json_encode([
+        "success" => true,
+        "profile" => $profile
+    ]);
+} else {
+    echo json_encode([
+        "success" => false,
+        "message" => "Profile not found"
+    ]);
+}
 ?>

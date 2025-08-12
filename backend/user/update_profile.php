@@ -1,24 +1,52 @@
 <?php
-session_start();
-require_once '../config/db.php';
 include('../session/start.php');
+include('../config/db.php');
 
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(["message" => "Unauthorized"]);
+header('Content-Type: application/json');
+
+if (!isset($_SESSION['user']['id'])) {
+    echo json_encode(["success" => false, "message" => "Not logged in"]);
     exit;
 }
 
+$user_id = $_SESSION['user']['id'];
+
+// ইনপুট ডেটা নেওয়া
 $data = json_decode(file_get_contents("php://input"), true);
-$id = $_SESSION['user_id'];
 
-$stmt = $conn->prepare("UPDATE users SET name=?, email=?, skills=?, experience=? WHERE id=?");
-$sucess->execute([$data['name'], $data['email'], $data['skills'], $data['experience'], $id]);
+$sql = "UPDATE users SET 
+        name = ?, 
+        email = ?, 
+        phone = ?, 
+        address = ?, 
+        skills = ?, 
+        experience = ?, 
+        education = ?, 
+        bio = ?, 
+        linkedin = ?, 
+        github = ?, 
+        website = ? 
+        WHERE id = ?";
+$stmt = $conn->prepare($sql);
 
-if ($sucess) {
-    echo json_encode(["message" => "Profile updated successfully."]);
+$updated = $stmt->execute([
+    $data['name'],
+    $data['email'],
+    $data['phone'],
+    $data['address'],
+    $data['skills'],
+    $data['experience'],
+    $data['education'],
+    $data['bio'],
+    $data['linkedin'],
+    $data['github'],
+    $data['website'],
+    $user_id
+]);
+
+if ($updated) {
+    echo json_encode(["success" => true, "message" => "Profile updated successfully"]);
 } else {
-    http_response_code(500);
-    echo json_encode(["message" => "Error updating profile."]);
+    echo json_encode(["success" => false, "message" => "Failed to update profile"]);
 }
 ?>
