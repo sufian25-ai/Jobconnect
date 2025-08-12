@@ -47,20 +47,19 @@ const Profile = () => {
     resume: "",
     profile_img: ""
   });
-  const [resumeFile, setResumeFile] = useState(null);
-  const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [activeTab, setActiveTab] = useState("basic");
   const [uploadProgress, setUploadProgress] = useState(0);
-
+console.log("profile" + JSON.stringify(profile));
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await api.get("/user/get_profile.php");
         if (res.data.success) {
           setProfile(res.data.profile);
+          setError("");
         } else {
           setError(res.data.message || "Failed to load profile");
         }
@@ -70,7 +69,6 @@ const Profile = () => {
         setLoading(false);
       }
     };
-
     fetchProfile();
   }, []);
 
@@ -82,10 +80,13 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
+    setSuccess("");
     try {
       const res = await api.post("/user/update_profile.php", profile);
       if (res.data.success) {
         setSuccess("Profile updated successfully!");
+        setError("");
         setTimeout(() => setSuccess(""), 3000);
       } else {
         setError(res.data.message || "Update failed");
@@ -99,13 +100,19 @@ const Profile = () => {
 
   const handleFileUpload = async (file, type) => {
     if (!file) return;
+    setError("");
+    setSuccess("");
+    setUploadProgress(0);
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("type", type);
+    formData.append("type", type === "profile" ? "profile_img" : type);
 
     try {
       const res = await api.post("/user/upload_file.php", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         onUploadProgress: (progressEvent) => {
           const progress = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
@@ -126,9 +133,11 @@ const Profile = () => {
         }, 3000);
       } else {
         setError(res.data.message || "Upload failed");
+        setUploadProgress(0);
       }
     } catch (err) {
-      setError("Failed to upload file");
+      setError(err.response?.data?.message || "Failed to upload file");
+      setUploadProgress(0);
     }
   };
 
@@ -136,10 +145,14 @@ const Profile = () => {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.match("image.*")) {
-        setError("Please select an image file");
+        setError("Please select an image file (JPEG, PNG, GIF)");
         return;
       }
-      setProfileImage(file);
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image file too large (max 5MB)");
+        return;
+      }
+      setError("");
       handleFileUpload(file, "profile");
     }
   };
@@ -147,11 +160,15 @@ const Profile = () => {
   const handleResumeChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (!file.type.match("application/pdf")) {
+      if (file.type !== "application/pdf") {
         setError("Please select a PDF file");
         return;
       }
-      setResumeFile(file);
+      if (file.size > 10 * 1024 * 1024) {
+        setError("PDF file too large (max 10MB)");
+        return;
+      }
+      setError("");
       handleFileUpload(file, "resume");
     }
   };
@@ -176,9 +193,13 @@ const Profile = () => {
               <div className="profile-image-container mb-3">
                 {profile.profile_img ? (
                   <Image
-                    src={`/uploads/profile_images/${profile.profile_img}`}
+                    src={`http://localhost/Jobconnect/backend/uploads/profile_images/${profile.profile_img}`}
                     roundedCircle
                     className="profile-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/default-profile.png";
+                    }}
                   />
                 ) : (
                   <div className="profile-image-placeholder">
@@ -257,7 +278,20 @@ const Profile = () => {
               >
                 <Tab eventKey="basic" title="Basic Info">
                   <Form onSubmit={handleSubmit}>
-                    {error && <Alert variant="danger">{error}</Alert>}
+                    {error && (
+                      <Alert variant="danger">
+                        <strong>Error:</strong> {error}
+                        {error.includes("upload") && (
+                          <div className="mt-2">
+                            <small>
+                              Supported formats: {activeTab === "resume" ? "PDF" : "JPEG, PNG, GIF"}
+                              <br />
+                              Max size: {activeTab === "resume" ? "10MB" : "5MB"}
+                            </small>
+                          </div>
+                        )}
+                      </Alert>
+                    )}
                     {success && <Alert variant="success">{success}</Alert>}
                     
                     <Row>
@@ -497,7 +531,6 @@ const Profile = () => {
   );
 };
 
-// Helper function to calculate profile completion percentage
 const calculateProfileCompletion = (profile) => {
   const fields = [
     'name',
