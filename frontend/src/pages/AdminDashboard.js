@@ -136,7 +136,7 @@ const AdminDashboard = () => {
           <Nav.Link className="text-white mb-2" onClick={() => navigate("/admin/jobs")}>
             <FaBriefcase className="me-2" /> Job Management
           </Nav.Link>
-          <Nav.Link className="text-white mb-2" disabled>
+          <Nav.Link className="text-white mb-2" onClick={() => navigate("/admin/ UserManagement")}>
             <FaUsers className="me-2" /> User Management
           </Nav.Link>
           <Nav.Link className="text-white mb-2" disabled>

@@ -10,9 +10,11 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import CompanyDashboard from "./pages/CompanyDashboard";
+import CompanyProfile from "./pages/CompanyProfile";
 import PostJob from "./pages/PostJob";
 import Jobs from "./pages/Jobs";
 import ApplyForm from "./pages/ApplyForm";
+
 
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -49,7 +51,11 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/Profile" element={<Profile />} />
+
         <Route path="/dashboard" element={<CompanyDashboard />} />
+        <Route path="/Profiledashboard" element={<CompanyProfile />} />
+        
+        {/* Job-related Routes */}
         <Route path="/post-job" element={<PostJob />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/apply/:jobId" element={<ApplyForm />} />

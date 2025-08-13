@@ -105,30 +105,35 @@ const Navigation = () => {
           {/* Right Nav */}
           <Nav className="d-flex align-items-center gap-3">
             {user ? (
-              <>
-                <span className="text-secondary">Welcome, {user.name}</span>
+              <NavDropdown
+                title={`Welcome, ${user.name}`}
+                id="user-nav-dropdown"
+                align="end"
+              >
                 {user.role === "user" && (
                   <NavDropdown.Item as={Link} to="/Profile">My Profile</NavDropdown.Item>
                 )}
                 {user.role === "company" && (
-                  <NavDropdown.Item as={Link} to="/dashboard">Company Dashboard</NavDropdown.Item>
+                  <>
+                    <NavDropdown.Item as={Link} to="/Profiledashboard">Company Profile</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/dashboard">Company Dashboard</NavDropdown.Item>
+                  </>
                 )}
-                { user.role === "admin" && (
+                {user.role === "admin" && (
                   <NavDropdown.Item as={Link} to="/admin/dashboard">Admin Dashboard</NavDropdown.Item>
                 )}
-                
-
-              <Button variant="outline-primary" size="sm" onClick={handleLogout}>
-                Logout
-              </Button>
-              </>
+                <NavDropdown.Divider />
+                <NavDropdown.Item as="button" onClick={handleLogout}>
+                  Logout
+                </NavDropdown.Item>
+              </NavDropdown>
             ) : (
-              <>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/register">
-                  <Button variant="primary" size="sm">Register</Button>
-                </Nav.Link>
-              </>
+              <NavDropdown title="Account" id="guest-nav-dropdown" align="end">
+                <NavDropdown.Item as={Link} to="/login">Login</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/register">
+                  Register
+                </NavDropdown.Item>
+              </NavDropdown>
             )}
           </Nav>
         </Navbar.Collapse>
