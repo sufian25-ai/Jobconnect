@@ -21,8 +21,10 @@ try {
         exit;
     }
 
-    // Get job openings
-    $stmt = $conn->prepare("SELECT id, title, location, type, status FROM jobs WHERE company_id = ? AND status = 'active'");
+    // Get job openings (status 'approved' matches your enum)
+    $stmt = $conn->prepare("SELECT id, title, location, job_type, status 
+                            FROM jobs 
+                            WHERE company_id = ? AND status = 'approved'");
     $stmt->execute([$company['id']]);
     $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
