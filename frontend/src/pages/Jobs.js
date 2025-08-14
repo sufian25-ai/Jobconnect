@@ -46,8 +46,15 @@ const Jobs = () => {
       try {
         const res = await api.get("/jobs/list.php");
         if (res.data.success) {
-          setJobs(res.data.jobs || []);
-          setFilteredJobs(res.data.jobs || []);
+          const jobsWithFullLogoPath = res.data.jobs.map(job => ({
+            ...job,
+            company_logo: job.company_logo 
+              ? `http://localhost/Jobconnect/backend/uploads/company_logos/${job.company_logo}`
+              : "/images/default-company.png",
+            company_name: job.company_name || "Confidential Company"
+          }));
+          setJobs(jobsWithFullLogoPath || []);
+          setFilteredJobs(jobsWithFullLogoPath || []);
         } else {
           setError(res.data.message || "No jobs found");
         }
@@ -66,7 +73,7 @@ const Jobs = () => {
     let results = jobs.filter((job) => {
       return (
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (job.company_name && job.company_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         job.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
@@ -83,7 +90,7 @@ const Jobs = () => {
 
     if (filters.salary) {
       results = results.filter((job) => {
-        const jobSalary = parseInt(job.salary.replace(/,/g, ""));
+        const jobSalary = job.salary ? parseInt(job.salary.toString().replace(/,/g, "")) : 0;
         return jobSalary >= parseInt(filters.salary);
       });
     }
@@ -114,8 +121,8 @@ const Jobs = () => {
       <div className="jobs-hero text-white text-center py-5 position-relative">
         <div className="overlay"></div>
         <Container className="position-relative z-index-1">
-          <h1 className="display-4 fw-bold mb-3">Find Job Here</h1>
-          <p className="lead mb-4">Browse thousands of job listings from top companies</p>
+          <h1 className="display-4 fw-bold mb-3">Find Your Dream Job</h1>
+          <p className="lead mb-4">Browse opportunities from top companies</p>
           
           {/* Search Bar */}
           <div className="job-search-bar mx-auto" style={{ maxWidth: "800px" }}>
@@ -220,12 +227,6 @@ const Jobs = () => {
 
         {!loading && !error && filteredJobs.length === 0 && (
           <div className="text-center py-5">
-            {/* <img
-              src="/images/no-jobs.svg"
-              alt="No jobs found"
-              style={{ maxWidth: "300px" }}
-              className="img-fluid mb-4"
-            /> */}
             <h4 className="mb-3">No jobs match your criteria</h4>
             <p className="text-muted mb-4">
               Try adjusting your filters or search terms
@@ -241,13 +242,17 @@ const Jobs = () => {
             <Col md={6} lg={4} key={job.id} data-aos="fade-up">
               <Card className="h-100 job-card shadow-sm border-0">
                 <Card.Body className="d-flex flex-column">
-                  {/* Company Logo & Badges
+                  {/* Company Logo & Badges */}
                   <div className="d-flex align-items-start mb-3">
                     <div className="company-logo me-3">
                       <img
-                        src={job.company_logo || "/images/default-company.png"}
-                        alt={job.company}
+                        src={job.company_logo}
+                        alt={job.company_name}
                         className="img-fluid rounded"
+                        style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                        onError={(e) => {
+                          e.target.src = "/images/default-company.png";
+                        }}
                       />
                     </div>
                     <div className="flex-grow-1">
@@ -255,19 +260,17 @@ const Jobs = () => {
                         <Badge bg="light" text="dark" className="text-uppercase">
                           {job.job_type || "Full-time"}
                         </Badge>
-                        {job.is_featured && (
-                          <Badge bg="warning" text="dark">
-                            Featured
-                          </Badge>
+                        {job.status === "approved" && (
+                          <Badge bg="success">Verified</Badge>
                         )}
                       </div>
                     </div>
-                  </div> */}
+                  </div>
 
                   {/* Job Title & Company */}
                   <Card.Title className="mb-2">{job.title}</Card.Title>
                   <Card.Subtitle className="mb-3 text-muted">
-                    <BsBuilding className="me-1" /> {job.company || "Confidential"}
+                    <BsBuilding className="me-1" /> {job.company_name}
                   </Card.Subtitle>
 
                   {/* Job Meta */}
@@ -278,21 +281,23 @@ const Jobs = () => {
                     </li>
                     <li>
                       <FaMoneyBillWave className="me-2" />
-                      {job.salary ? `৳${job.salary}` : "Salary negotiable"}
+                      {job.salary ? `৳${job.salary.toLocaleString()}` : "Salary negotiable"}
                     </li>
                     <li>
                       <FaBriefcase className="me-2" />
-                      {job.experience || "Experience not specified"}
+                      {job.job_type || "Full-time"}
                     </li>
                     <li>
                       <FaClock className="me-2" />
-                      Apply before: {job.deadline}
+                      Apply before: {new Date(job.deadline).toLocaleDateString()}
                     </li>
                   </ul>
 
                   {/* Job Description */}
                   <Card.Text className="flex-grow-1 mb-4">
-                    {job.description?.substring(0, 150)}...
+                    {job.description?.length > 150 
+                      ? `${job.description.substring(0, 150)}...` 
+                      : job.description}
                   </Card.Text>
 
                   {/* Action Buttons */}
@@ -328,7 +333,7 @@ const Jobs = () => {
                 <Card.Footer className="text-muted small d-flex justify-content-between">
                   <span>
                     <BsCalendarDate className="me-1" />
-                    Posted: {job.posted_date || "Recently"}
+                    Posted: {new Date(job.created_at).toLocaleDateString()}
                   </span>
                   <span>Ref: {job.id}</span>
                 </Card.Footer>

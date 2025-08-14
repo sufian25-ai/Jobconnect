@@ -16,6 +16,7 @@ import Jobs from "./pages/Jobs";
 import ApplyForm from "./pages/ApplyForm";
 
 
+
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Footer from "./Footer/Footer";
@@ -41,6 +42,8 @@ function App() {
 
       {/* ✅ Admin Routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+       
+       
 
       {/* ✅ User Routes */}
         <Route path="/" element={<Home />} />

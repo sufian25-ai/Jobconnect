@@ -7,7 +7,9 @@ header("Content-Type: application/json");
 $response = ["success" => false, "jobs" => [], "message" => ""];
 
 try {
-    $sql = "SELECT id, title, description, location, job_type, salary, deadline, created_at FROM jobs ORDER BY created_at DESC";
+    $sql = "SELECT id, company_name, company_logo, title, description, location, job_type, salary, deadline, created_at 
+            FROM jobs 
+            ORDER BY created_at DESC";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
 
