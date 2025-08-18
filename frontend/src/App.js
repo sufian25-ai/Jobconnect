@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import CompanyProfile from "./pages/CompanyProfile";
 import PostJob from "./pages/PostJob";
+import EditJob from "./pages/EditJob";
 import Jobs from "./pages/Jobs";
 import ApplyForm from "./pages/ApplyForm";
 
@@ -57,11 +58,13 @@ function App() {
 
         <Route path="/dashboard" element={<CompanyDashboard />} />
         <Route path="/Profiledashboard" element={<CompanyProfile />} />
+
         
         {/* Job-related Routes */}
         <Route path="/post-job" element={<PostJob />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/apply/:jobId" element={<ApplyForm />} />
+        <Route path="/edit-job/:id" element={<EditJob />} />
         
       </Routes>
       <Footer />

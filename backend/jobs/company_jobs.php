@@ -6,13 +6,7 @@ $company_id = $_GET['company_id'] ?? 0;
 
 $sql = "SELECT * FROM jobs WHERE company_id = ? ORDER BY id DESC";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $company_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$jobs = [];
-while ($row = $result->fetch_assoc()) {
-    $jobs[] = $row;
-}
+$stmt->execute([$company_id]);
+$jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode(["jobs" => $jobs]);

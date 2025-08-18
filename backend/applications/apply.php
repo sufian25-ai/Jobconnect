@@ -1,35 +1,78 @@
 <?php
+// apply.php
+header('Content-Type: application/json');
 include('../session/start.php');
-require_once "../config/db.php";
-header("Content-Type: application/json");
+include('../config/db.php');
 
-$response = ["success" => false, "message" => ""];
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
-    $response["message"] = "Unauthorized.";
-    echo json_encode($response);
+// Check if user is logged in
+if (!isset($_SESSION['user']['id'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'You must be logged in to apply'
+    ]);
     exit;
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
+$user_id = $_SESSION['user']['id'];
 
-$job_id = $data["job_id"] ?? null;
-$message = $data["message"] ?? "";
+// Validate required fields
+$job_id = $_POST['job_id'] ?? null;
+$name = $_POST['name'] ?? null;
+$email = $_POST['email'] ?? null;
+$phone = $_POST['phone'] ?? null;
+$cover_letter = $_POST['cover_letter'] ?? null;
 
-if (!$job_id) {
-    $response["message"] = "Job ID is required.";
-    echo json_encode($response);
+if (!$job_id || !$name || !$email || !$phone) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Missing required fields'
+    ]);
     exit;
 }
 
+// Handle resume upload
+$resume_path = '';
+if (isset($_FILES['resume']) && $_FILES['resume']['error'] === 0) {
+    $allowed_ext = ['pdf', 'doc', 'docx'];
+    $file_name = $_FILES['resume']['name'];
+    $file_tmp = $_FILES['resume']['tmp_name'];
+    $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    $max_size = 2 * 1024 * 1024; // 2MB
+
+    if (!in_array($file_ext, $allowed_ext)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid file type. Only PDF/DOC allowed.']);
+        exit;
+    }
+
+    if ($_FILES['resume']['size'] > $max_size) {
+        echo json_encode(['success' => false, 'message' => 'File too large. Max 2MB allowed.']);
+        exit;
+    }
+
+    $new_file_name = 'resume_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
+    $upload_dir = '../uploads/resumes/';
+
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir, 0755, true);
+    }
+
+    $resume_path_full = $upload_dir . $new_file_name;
+
+    if (!move_uploaded_file($file_tmp, $resume_path_full)) {
+        echo json_encode(['success' => false, 'message' => 'Failed to upload resume']);
+        exit;
+    }
+
+    // Save relative path for DB
+    $resume_path = 'uploads/resumes/' . $new_file_name;
+}
+
+// Insert into database
 try {
-    $stmt = $conn->prepare("INSERT INTO job_applications (job_id, user_id, message, applied_at) VALUES (?, ?, ?, NOW())");
-    $stmt->execute([$job_id, $_SESSION['user_id'], $message]);
+    $stmt = $conn->prepare("INSERT INTO applications (job_id, user_id, name, email, phone, resume_path, cover_letter) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$job_id, $user_id, $name, $email, $phone, $resume_path, $cover_letter]);
 
-    $response["success"] = true;
-    $response["message"] = "Application submitted successfully.";
-} catch (PDOException $e) {
-    $response["message"] = "Error: " . $e->getMessage();
+    echo json_encode(['success' => true, 'message' => 'Application submitted successfully!']);
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-
-echo json_encode($response);

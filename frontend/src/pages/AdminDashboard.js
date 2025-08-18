@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Nav } from "react-bootstrap";
 import UserManagement from "../pages/UserManagement";
+import CompanyManagement from "../pages/Company_management";
 
 const AdminDashboard = () => {
   const [showUserManagement, setShowUserManagement] = useState(false);
+  const [showCompanyManagement, setShowCompanyManagement] = useState(false);
 
   return (
     <div className="d-flex">
@@ -17,10 +19,10 @@ const AdminDashboard = () => {
           <Nav.Link className="text-white" onClick={() => setShowUserManagement(true)}>
             User Management
           </Nav.Link>
-          <Nav.Link className="text-white" onClick={() => setShowUserManagement(true)}>
+          <Nav.Link className="text-white" onClick={() => setShowCompanyManagement(true)}>
             Company Management
           </Nav.Link>
-          <Nav.Link className="text-white" onClick={() => setShowUserManagement(true)}>
+          {/* <Nav.Link className="text-white" onClick={() => setShowUserManagement(true)}>
             Job Management
           </Nav.Link>
           <Nav.Link className="text-white" onClick={() => setShowUserManagement(true)}>
@@ -31,7 +33,7 @@ const AdminDashboard = () => {
           </Nav.Link>
           <Nav.Link className="text-white" onClick={() => setShowUserManagement(true)}>
             Logout  
-          </Nav.Link>
+          </Nav.Link> */}
         </Nav>
       </div>
 
@@ -39,6 +41,8 @@ const AdminDashboard = () => {
       <div className="flex-grow-1 p-4">
         {showUserManagement ? (
           <UserManagement />
+        ) : showCompanyManagement ? (
+          <CompanyManagement /> 
         ) : (
           <h2>Welcome to the Dashboard</h2>
         )}
