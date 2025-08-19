@@ -27,10 +27,10 @@ if (!$id || !$status || !in_array($status, $valid_statuses)) {
 }
 
 try {
-    // প্রথমে check করব application টা কোম্পানির job এর কিনা
     $company_id = $_SESSION['user']['company_id'];
 
-    $checkSql = "SELECT a.id 
+    // Application + Job check
+    $checkSql = "SELECT a.id, a.user_id, a.job_id, j.salary, j.company_id
                  FROM applications a
                  JOIN jobs j ON a.job_id = j.id
                  WHERE a.id = ? AND j.company_id = ?";
@@ -44,10 +44,27 @@ try {
         exit;
     }
 
-    // এখন update করব
+    // এখন application status update করব
     $sql = "UPDATE applications SET status = ?, updated_at = NOW() WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->execute([$status, $id]);
+
+    // যদি status = hired হয় তাহলে commission টেবিলে insert হবে
+    if ($status === "hired") {
+        $totalSalary = $app['salary'] ?? 0;
+        $commission = $totalSalary * 0.10; // 10%
+
+        $insertSql = "INSERT INTO commissions (company_id, user_id, job_id, total_salary, admin_commission, status) 
+                      VALUES (?, ?, ?, ?, ?, 'pending')";
+        $stmtInsert = $conn->prepare($insertSql);
+        $stmtInsert->execute([
+            $app['company_id'],
+            $app['user_id'],
+            $app['job_id'],
+            $totalSalary,
+            $commission
+        ]);
+    }
 
     $response["success"] = true;
     $response["message"] = "Application status updated successfully.";

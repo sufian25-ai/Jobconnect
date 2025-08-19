@@ -69,13 +69,13 @@ const AdminCompanies = () => {
                   <td>
                     <Image 
                       src={company.logo_url} 
-                      alt={company.company_name} 
+                      alt={company.name} 
                       width={50} 
                       height={50} 
                       rounded 
                     />
                   </td>
-                  <td>{company.company_name}</td>
+                  <td>{company.name}</td>
                   <td>{company.industry || '-'}</td>
                   <td>{company.employees || '-'}</td>
                   <td>

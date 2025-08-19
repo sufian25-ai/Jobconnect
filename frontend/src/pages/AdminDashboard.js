@@ -13,6 +13,7 @@ import UserManagement from "../pages/UserManagement";
 import AdminCompanies from "../pages/AdminCompanies";
 import AdminJobs from "../pages/AdminJobs";
 import AdminApplications from "../pages/AdminApplications";
+import AdminCommissions from "../pages/AdminCommissionList";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -28,6 +29,8 @@ const AdminDashboard = () => {
         return <AdminJobs />;
       case "job_application":
         return <AdminApplications />;
+      case "commissions":
+        return <AdminCommissions />;
       case "dashboard":
       default:
         return (
@@ -47,8 +50,9 @@ const AdminDashboard = () => {
     { id: "companies", label: "Company Management", icon: <FaBuilding className="me-2" /> },
     { id: "jobs", label: "Job Management", icon: <FaBriefcase className="me-2" /> },
     { id: "job_application", label: "User Job Application Management", icon: <FaBriefcase className="me-2" /> },
-    { id: "settings", label: "Settings", icon: <FaCog className="me-2" /> },
-    { id: "reports", label: "Reports", icon: <FaChartBar className="me-2" /> },
+    { id: "commissions", label: "Commission", icon: <FaChartBar className="me-2" /> },
+    { id: "settings", label: "Reports", icon: <FaCog className="me-2" /> },
+    { id: "reports", label: "Others", icon: <FaChartBar className="me-2" /> },
   ];
 
   return (

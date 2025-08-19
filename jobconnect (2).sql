@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 19, 2025 at 09:13 AM
+-- Generation Time: Aug 19, 2025 at 08:54 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.0.30
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -48,7 +48,32 @@ CREATE TABLE `applications` (
 INSERT INTO `applications` (`id`, `job_id`, `user_id`, `name`, `email`, `phone`, `resume_path`, `cover_letter`, `status`, `applied_at`, `updated_at`) VALUES
 (1, 11, 1, 'Mahbub', 'msufianbd92@gmail.com', '01568393086', 'uploads/resumes/resume_1755574680_2665.pdf', 'dscvdscv', 'hired', '2025-08-19 03:38:00', '2025-08-19 05:24:31'),
 (2, 10, 18, 'Ripon', 'Ripon@gmail.com', '01752548992', 'uploads/resumes/resume_1755581360_3156.pdf', '', 'pending', '2025-08-19 05:29:20', NULL),
-(3, 12, 18, 'Ripon', 'Ripon@gmail.com', '01752548992', 'uploads/resumes/resume_1755585765_6746.pdf', 'fgbfdgfd', 'shortlisted', '2025-08-19 06:42:45', '2025-08-19 06:43:16');
+(3, 12, 18, 'Ripon', 'Ripon@gmail.com', '01752548992', 'uploads/resumes/resume_1755585765_6746.pdf', 'fgbfdgfd', 'shortlisted', '2025-08-19 06:42:45', '2025-08-19 06:43:16'),
+(4, 19, 1, 'Mahbub', 'msufianbd92@gmail.com', '01752548992', 'uploads/resumes/resume_1755625760_3695.pdf', 'I need this job', 'hired', '2025-08-19 17:49:20', '2025-08-19 18:05:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `commissions`
+--
+
+CREATE TABLE `commissions` (
+  `id` int(11) NOT NULL,
+  `company_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `job_id` int(11) NOT NULL,
+  `total_salary` decimal(10,2) NOT NULL,
+  `admin_commission` decimal(10,2) NOT NULL,
+  `status` enum('pending','paid') DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `commissions`
+--
+
+INSERT INTO `commissions` (`id`, `company_id`, `user_id`, `job_id`, `total_salary`, `admin_commission`, `status`, `created_at`) VALUES
+(1, 4, 1, 19, 14999.00, 1499.90, 'paid', '2025-08-19 18:05:38');
 
 -- --------------------------------------------------------
 
@@ -84,7 +109,7 @@ CREATE TABLE `companies` (
 
 INSERT INTO `companies` (`id`, `user_id`, `name`, `email`, `phone`, `address`, `industry`, `founded`, `description`, `website`, `linkedin`, `logo`, `banner`, `employees`, `products`, `services`, `achievements`, `created_at`, `updated_at`) VALUES
 (1, 3, 'Technology', 'msufianbd99@gmail.com', '01752548992', 'Gulshan ', 'Dhaka', '2000', 'fi ggfhygyg hfgg', '', '', '689d568274f1e_modern_hexagon_tech_logo_designs_concept_hexa_technology_logo_template_vector.jpg', '689d55f41c6eb_10981439_4582455.jpg', '1000+', 'dsgjhvj ', 'asdjgjs sfdsf ', 'gsdhsajgdjs', '2025-08-13 16:46:42', '2025-08-14 03:24:37'),
-(2, 19, '', '', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '68a41a72d51b9_daraz_new_logo.png', '68a41a6bced68_fae33f102395449.5f355f2c1b6ab.jpg', NULL, NULL, NULL, NULL, '2025-08-19 06:32:11', '2025-08-19 06:32:18');
+(4, 19, 'Daraz', 'xehad@gmail.com', '01752548992', 'Gulshan Dhaka', 'Dhaka', '2008', NULL, 'https://www.daraz.com.bd', NULL, '68a49ebb5a3b3_b605086c_4780_4060_a2b7_ff3709c6a28f.png', '68a49ec00a2cc_0ef9e5ee4aee8bdfca32c3632476f42a.jpg_2200x2200q80.jpg', '1000+', NULL, NULL, NULL, '2025-08-19 15:56:43', '2025-08-19 16:06:08');
 
 -- --------------------------------------------------------
 
@@ -146,7 +171,8 @@ INSERT INTO `jobs` (`id`, `company_id`, `company_name`, `company_logo`, `title`,
 (9, 1, 'Technology', '689d568274f1e_modern_hexagon_tech_logo_designs_concept_hexa_technology_logo_template_vector.jpg', 'Project Manager', '5 years exprience', 'Gulshan', 'Full-time', 65000.00, '2025-08-15', '2025-08-14 07:02:35', '2025-08-19 03:32:53', 'rejected'),
 (10, 1, 'Technology', '689d568274f1e_modern_hexagon_tech_logo_designs_concept_hexa_technology_logo_template_vector.jpg', 'Software Engnieer', 'Outstanding', 'Sylet', 'Remote', 15000.00, '2025-08-21', '2025-08-18 03:38:11', '2025-08-19 06:01:08', 'rejected'),
 (11, 1, 'Technology', '689d568274f1e_modern_hexagon_tech_logo_designs_concept_hexa_technology_logo_template_vector.jpg', 'Lecturer', '2 years Exprience', 'Sylet', 'Full-time', 25000.00, '2025-08-22', '2025-08-19 03:22:59', '2025-08-19 03:32:06', 'approved'),
-(12, 1, 'Technology', '689d568274f1e_modern_hexagon_tech_logo_designs_concept_hexa_technology_logo_template_vector.jpg', 'Marketting', '4 Years ex', 'Barisal', '', 15000.00, '2025-08-29', '2025-08-19 06:36:15', '2025-08-19 06:44:30', 'approved');
+(12, 1, 'Technology', '689d568274f1e_modern_hexagon_tech_logo_designs_concept_hexa_technology_logo_template_vector.jpg', 'Marketting', '4 Years ex', 'Barisal', '', 15000.00, '2025-08-29', '2025-08-19 06:36:15', '2025-08-19 06:44:30', 'approved'),
+(19, 4, 'Daraz', '68a49ebb5a3b3_b605086c_4780_4060_a2b7_ff3709c6a28f.png', 'Marketting', 'No Exprience', 'Khulna', '', 14999.00, '2025-08-22', '2025-08-19 16:02:53', '2025-08-19 16:04:41', 'approved');
 
 -- --------------------------------------------------------
 
@@ -221,6 +247,15 @@ ALTER TABLE `applications`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `commissions`
+--
+ALTER TABLE `commissions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_comm_company` (`company_id`),
+  ADD KEY `fk_comm_user` (`user_id`),
+  ADD KEY `fk_comm_job` (`job_id`);
+
+--
 -- Indexes for table `companies`
 --
 ALTER TABLE `companies`
@@ -263,13 +298,19 @@ ALTER TABLE `user_profiles`
 -- AUTO_INCREMENT for table `applications`
 --
 ALTER TABLE `applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `commissions`
+--
+ALTER TABLE `commissions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `companies`
 --
 ALTER TABLE `companies`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `contact_submissions`
@@ -281,7 +322,7 @@ ALTER TABLE `contact_submissions`
 -- AUTO_INCREMENT for table `jobs`
 --
 ALTER TABLE `jobs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -307,10 +348,18 @@ ALTER TABLE `applications`
   ADD CONSTRAINT `applications_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `commissions`
+--
+ALTER TABLE `commissions`
+  ADD CONSTRAINT `fk_comm_company` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_comm_job` FOREIGN KEY (`job_id`) REFERENCES `jobs` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_comm_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `jobs`
 --
 ALTER TABLE `jobs`
-  ADD CONSTRAINT `jobs_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `jobs_ibfk_1` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `user_profiles`
