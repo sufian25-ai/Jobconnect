@@ -13,7 +13,9 @@ const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [roleFilter, setRoleFilter] = useState('all');
 
-  // Fetch Users
+  // ✅ logged-in admin role check
+  const [currentUserRole, setCurrentUserRole] = useState('');
+
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
@@ -23,6 +25,9 @@ const UserManagement = () => {
         if (res.data.success) {
           setUsers(res.data.users);
           setFilteredUsers(res.data.users);
+
+          // ধরলাম backend session থেকে বর্তমান user role পাঠাচ্ছে
+          setCurrentUserRole(res.data.currentUserRole || '');
         } else {
           setError(res.data.message || 'Failed to fetch users');
         }
@@ -72,23 +77,7 @@ const UserManagement = () => {
     }
   };
 
-  // Role Change
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      const res = await api.post(`/admin/user_role_update.php`, { id: userId, role: newRole });
-      if (res.data.success) {
-        setUsers(users.map(user =>
-          user.id === userId ? { ...user, role: newRole } : user
-        ));
-      } else {
-        setError(res.data.message || 'Failed to update role');
-      }
-    } catch (err) {
-      setError(`Error updating role: ${err.message}`);
-    }
-  };
-
-  // Role Badge
+  // ✅ Role Badge
   const getRoleBadge = (role) => {
     const variants = { admin: 'danger', company: 'warning', user: 'primary' };
     const icons = {
@@ -151,7 +140,7 @@ const UserManagement = () => {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Role</th>
-                  <th>Actions</th>
+                  {currentUserRole === 'admin' && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
@@ -161,36 +150,29 @@ const UserManagement = () => {
                       <td>{user.id}</td>
                       <td>{user.name || 'N/A'}</td>
                       <td>{user.email || 'N/A'}</td>
-                      <td>
-                        <Form.Select
-                          size="sm"
-                          value={user.role}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                          className="role-select"
-                        >
-                          <option value="user">User</option>
-                          <option value="company">Company</option>
-                          <option value="admin">Admin</option>
-                        </Form.Select>
-                      </td>
-                      <td>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => handleDeleteClick(user)}
-                          className="me-2"
-                        >
-                          <FaTrash />
-                        </Button>
-                        <Button variant="outline-primary" size="sm">
-                          <FaEdit />
-                        </Button>
-                      </td>
+                      <td>{getRoleBadge(user.role)}</td>
+                      {currentUserRole === 'admin' && (
+                        <td>
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
+                            onClick={() => handleDeleteClick(user)}
+                            className="me-2"
+                          >
+                            <FaTrash />
+                          </Button>
+                          <Button variant="outline-primary" size="sm">
+                            <FaEdit />
+                          </Button>
+                        </td>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="text-center py-4">No users found</td>
+                    <td colSpan={currentUserRole === 'admin' ? 5 : 4} className="text-center py-4">
+                      No users found
+                    </td>
                   </tr>
                 )}
               </tbody>

@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import CompanyProfile from "./pages/CompanyProfile";
+import CompanyApplications from "./pages/CompanyApplications";
 import PostJob from "./pages/PostJob";
 import EditJob from "./pages/EditJob";
 import Jobs from "./pages/Jobs";
@@ -58,6 +59,7 @@ function App() {
 
         <Route path="/dashboard" element={<CompanyDashboard />} />
         <Route path="/Profiledashboard" element={<CompanyProfile />} />
+        <Route path="/applications" element={<CompanyApplications />} />
 
         
         {/* Job-related Routes */}

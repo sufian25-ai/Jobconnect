@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 include('../session/start.php');
 include('../config/db.php');
 
-// Check if admin is logged in
+// Check if user logged in
 if (!isset($_SESSION['user']['id'])) {
     echo json_encode([
         'success' => false,
@@ -16,7 +16,8 @@ if (!isset($_SESSION['user']['id'])) {
 $user_id = $_SESSION['user']['id'];
 
 try {
-    $stmt = $conn->prepare("SELECT * FROM companies WHERE user_id = 1");
+    // ✅ এখানে placeholder ব্যবহার করা হলো
+    $stmt = $conn->prepare("SELECT * FROM companies WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $company = $stmt->fetch(PDO::FETCH_ASSOC);
 

@@ -117,6 +117,7 @@ const Navigation = () => {
                   <>
                     <NavDropdown.Item as={Link} to="/Profiledashboard">Company Profile</NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/dashboard">Company Dashboard</NavDropdown.Item>
+                    <NavDropdown.Item as={Link} to="/applications">User Applications</NavDropdown.Item>
                   </>
                 )}
                 {user.role === "admin" && (
