@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 19, 2025 at 08:54 PM
+-- Generation Time: Aug 20, 2025 at 09:50 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -47,9 +47,10 @@ CREATE TABLE `applications` (
 
 INSERT INTO `applications` (`id`, `job_id`, `user_id`, `name`, `email`, `phone`, `resume_path`, `cover_letter`, `status`, `applied_at`, `updated_at`) VALUES
 (1, 11, 1, 'Mahbub', 'msufianbd92@gmail.com', '01568393086', 'uploads/resumes/resume_1755574680_2665.pdf', 'dscvdscv', 'hired', '2025-08-19 03:38:00', '2025-08-19 05:24:31'),
-(2, 10, 18, 'Ripon', 'Ripon@gmail.com', '01752548992', 'uploads/resumes/resume_1755581360_3156.pdf', '', 'pending', '2025-08-19 05:29:20', NULL),
+(2, 10, 18, 'Ripon', 'Ripon@gmail.com', '01752548992', 'uploads/resumes/resume_1755581360_3156.pdf', '', 'hired', '2025-08-19 05:29:20', '2025-08-20 05:08:15'),
 (3, 12, 18, 'Ripon', 'Ripon@gmail.com', '01752548992', 'uploads/resumes/resume_1755585765_6746.pdf', 'fgbfdgfd', 'shortlisted', '2025-08-19 06:42:45', '2025-08-19 06:43:16'),
-(4, 19, 1, 'Mahbub', 'msufianbd92@gmail.com', '01752548992', 'uploads/resumes/resume_1755625760_3695.pdf', 'I need this job', 'hired', '2025-08-19 17:49:20', '2025-08-19 18:05:38');
+(4, 19, 1, 'Mahbub', 'msufianbd92@gmail.com', '01752548992', 'uploads/resumes/resume_1755625760_3695.pdf', 'I need this job', 'hired', '2025-08-19 17:49:20', '2025-08-19 18:05:38'),
+(5, 19, 1, 'Mahbub', 'msufianbd92@gmail.com', '01568393086', 'resume_1755665870_6620.pdf', '', 'hired', '2025-08-20 04:57:50', '2025-08-20 05:01:48');
 
 -- --------------------------------------------------------
 
@@ -73,7 +74,9 @@ CREATE TABLE `commissions` (
 --
 
 INSERT INTO `commissions` (`id`, `company_id`, `user_id`, `job_id`, `total_salary`, `admin_commission`, `status`, `created_at`) VALUES
-(1, 4, 1, 19, 14999.00, 1499.90, 'paid', '2025-08-19 18:05:38');
+(1, 4, 1, 19, 14999.00, 1499.90, 'paid', '2025-08-19 18:05:38'),
+(2, 4, 1, 19, 14999.00, 1499.90, 'paid', '2025-08-20 05:01:48'),
+(3, 1, 18, 10, 15000.00, 1500.00, 'pending', '2025-08-20 05:08:15');
 
 -- --------------------------------------------------------
 
@@ -298,13 +301,13 @@ ALTER TABLE `user_profiles`
 -- AUTO_INCREMENT for table `applications`
 --
 ALTER TABLE `applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `commissions`
 --
 ALTER TABLE `commissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `companies`
