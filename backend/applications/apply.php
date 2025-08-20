@@ -64,7 +64,7 @@ if (isset($_FILES['resume']) && $_FILES['resume']['error'] === 0) {
     }
 
     // Save relative path for DB
-    $resume_path = 'uploads/resumes/' . $new_file_name;
+    $resume_path =  $new_file_name;
 }
 
 // Insert into database

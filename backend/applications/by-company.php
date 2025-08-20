@@ -50,9 +50,9 @@ try {
     
     // Format the data with full URLs
     foreach ($applications as &$app) {
-        $app['resume_url'] = 'http://yourdomain.com/uploads/resumes/' . $app['resume_path'];
+        $app['resume_url'] = 'http://localhost/jobconnect/backend/uploads/resumes/' . $app['resume_path'];
         $app['applicant_image_url'] = $app['applicant_image'] 
-            ? 'http://yourdomain.com/uploads/profile_images/' . $app['applicant_image']
+            ? 'http://localhost/Jobconnect/backend/uploads/profile_images/' . $app['applicant_image']
             : '/images/default-user.png';
     }
     

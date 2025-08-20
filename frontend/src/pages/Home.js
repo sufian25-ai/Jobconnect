@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Carousel, Card,Badge } from 'react-bootstrap';
+import { Container, Row, Col, Button, Carousel, Card, Badge } from 'react-bootstrap';
+
 import api from '../services/api';
 import './Home.css';
 import { 
   FaMapMarkerAlt, 
   FaMoneyBillWave, 
   FaBriefcase,
-  FaRegClock
-} from 'react-icons/fa';// Icons for job details
-import { FaStar } from 'react-icons/fa';// Icons for testimonials
-import { 
+  FaRegClock,
+  FaStar,
   FaDatabase, 
   FaBuilding, 
   FaUserGraduate,
   FaRocket,
   FaShieldAlt,
-  FaHeadset
-} from 'react-icons/fa';// Icons for Why Choose Us section
-import { 
+  FaHeadset,
   FaUserPlus, 
   FaFileAlt, 
   FaSearch, 
-  FaHandshake 
-} from 'react-icons/fa';//How JobConnect Works
+  FaHandshake,
+  FaChevronLeft,
+  FaChevronRight
+} from 'react-icons/fa';
 import CountUp from 'react-countup';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [featuredJobs, setFeaturedJobs] = useState([]);
@@ -34,7 +34,15 @@ const Home = () => {
       try {
         const res = await api.get('/jobs/list.php');
         if (res.data.success) {
-          setFeaturedJobs(res.data.jobs);
+          // Process jobs to ensure proper logo URLs
+          const jobsWithLogos = res.data.jobs.map(job => ({
+            ...job,
+            // Construct proper URL for company logo
+            company_logo: job.company_logo 
+              ? `http://localhost/Jobconnect/backend/uploads/company_logos/${job.company_logo}`
+              : 'https://via.placeholder.com/150x150?text=No+Logo'
+          }));
+          setFeaturedJobs(jobsWithLogos);
         }
       } catch (err) {
         console.error('Error fetching jobs:', err);
@@ -45,6 +53,19 @@ const Home = () => {
 
     fetchFeaturedJobs();
   }, []);
+
+  // Custom carousel controls
+  const CustomPrevIcon = () => (
+    <span className="carousel-control-prev-icon" aria-hidden="true">
+      <FaChevronLeft />
+    </span>
+  );
+
+  const CustomNextIcon = () => (
+    <span className="carousel-control-next-icon" aria-hidden="true">
+      <FaChevronRight />
+    </span>
+  );
 
   return (
     <div className="home-page">
@@ -64,85 +85,110 @@ const Home = () => {
         </Container>
       </section>
 
-    
- {/* FEATURED JOBS - ENHANCED VERSION */}
-<section className="featured-jobs py-5">
-  <Container>
-    <div className="section-header text-center mb-5">
-      <h2 className="display-5 fw-bold mb-3">Featured Jobs</h2>
-      <div className="d-flex justify-content-center gap-3">
-        <Button variant="outline-primary" size="sm" className="active">All Jobs</Button>
-        <Button variant="outline-primary" size="sm">Remote</Button>
-        <Button variant="outline-primary" size="sm">Full-time</Button>
-        <Button variant="outline-primary" size="sm">Part-time</Button>
-      </div>
-    </div>
+      {/* FEATURED JOBS - CAROUSEL VERSION */}
+      <section className="featured-jobs py-5">
+        <Container>
+          <div className="section-header text-center mb-5">
+            <h2 className="display-5 fw-bold mb-3">Featured Jobs</h2>
+            <div className="d-flex justify-content-center gap-3">
+              <Button variant="outline-primary" size="sm" className="active">All Jobs</Button>
+              <Button variant="outline-primary" size="sm">Remote</Button>
+              <Button variant="outline-primary" size="sm">Full-time</Button>
+              <Button variant="outline-primary" size="sm">Part-time</Button>
+            </div>
+          </div>
 
-    {loading ? (
-      <div className="text-center py-5">
-        <div className="spinner-border text-primary" style={{width: '3rem', height: '3rem'}} />
-        <p className="mt-3">Loading featured jobs...</p>
-      </div>
-    ) : featuredJobs.length ? (
-      <div className="position-relative">
-        <div className="job-grid">
-          {featuredJobs.slice(0, 6).map((job) => (
-            <div key={job.id} className="job-card" data-aos="fade-up">
-              <div className="job-card-header">
-                {/* <div className="company-logo">
-                  <img src={job.company_logo || 'https://via.placeholder.com/60'} alt={job.company} />
-                </div> */}
-                <div className="job-meta">
-                  <span className="job-type">{job.type || 'Full-time'}</span>
-                  {job.is_featured && <span className="featured-badge">Featured</span>}
-                </div>
-              </div>
-              <div className="job-card-body">
-                <h3 className="job-title">{job.title}</h3>
-                <p className="company-name">{job.company}</p>
-                <div className="job-details">
-                  <div className="detail-item">
-                    <FaMapMarkerAlt className="icon" />
-                    <span>{job.location}</span>
-                  </div>
-                  <div className="detail-item">
-                    <FaMoneyBillWave className="icon" />
-                    <span>৳{job.salary}</span>
-                  </div>
-                  <div className="detail-item">
-                    <FaBriefcase className="icon" />
-                    {/* <span>{job.experience || '2+ Years'}</span> */}
-                  </div>
-                </div>
-                <p className="job-description">{job.description?.slice(0, 120)}...</p>
-              </div>
-              <div className="job-card-footer">
-                <div className="deadline">
-                  <FaRegClock className="icon" />
-                  <span>Apply before: {job.deadline}</span>
-                </div>
-                <div className="action-buttons">
-                  <Button variant="outline-primary" size="sm" href={`/job/${job.id}`}>Details</Button>
-                  <Button variant="primary" size="sm">Apply Now</Button>
-                </div>
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" style={{width: '3rem', height: '3rem'}} />
+              <p className="mt-3">Loading featured jobs...</p>
+            </div>
+          ) : featuredJobs.length ? (
+            <div className="position-relative">
+              <Carousel 
+                indicators={true} 
+                interval={5000}
+                nextIcon={<CustomNextIcon />}
+                prevIcon={<CustomPrevIcon />}
+                className="job-carousel"
+              >
+                {featuredJobs.slice(0, 6).map((job) => (
+                  <Carousel.Item key={job.id}>
+                    <div className="job-slide p-4">
+                      <Row className="align-items-center">
+                        <Col md={4} className="text-center">
+                          <div className="company-logo-slide mb-3">
+                            <img 
+                              src={job.company_logo} 
+                              alt={job.company_name} 
+                              className="img-fluid rounded"
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/150x150?text=Logo+Not+Found';
+                              }}
+                            />
+                          </div>
+                          <h4 className="company-name">{job.company_name}</h4>
+                          <div className="rating mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <FaStar 
+                                key={i} 
+                                className={i < 4 ? 'text-warning' : 'text-muted'} 
+                              />
+                            ))}
+                          </div>
+                          <Badge variant="primary" className="mb-3">
+                            {job.job_type || 'Full-time'}
+                          </Badge>
+                        </Col>
+                        <Col md={8}>
+                          <div className="job-details-slide">
+                            <h3 className="job-title">{job.title}</h3>
+                            <div className="job-meta mb-3">
+                              <div className="detail-item">
+                                <FaMapMarkerAlt className="icon" />
+                                <span>{job.location}</span>
+                              </div>
+                              <div className="detail-item">
+                                <FaMoneyBillWave className="icon" />
+                                <span>৳{job.salary}</span>
+                              </div>
+                              {/* <div className="detail-item">
+                                <FaBriefcase className="icon" />
+                                <span>{job.experience || '2+ Years'}</span>
+                              </div> */}
+                            </div>
+                            <p className="job-description">{job.description?.slice(0, 150)}...</p>
+                            <div className="deadline mb-3">
+                              <FaRegClock className="icon" />
+                              <span>Apply before: {job.deadline}</span>
+                            </div>
+                            <div className="action-buttons">
+                              <Button variant="outline-primary" size="sm" href={`/job/${job.id}`}>View Details</Button>
+                              <Button variant="primary" size="sm" className="ms-2">Apply Now</Button>
+                              
+                            </div>
+                          </div>
+                        </Col>
+                      </Row>
+                    </div>
+                  </Carousel.Item>
+                ))}
+              </Carousel>
+              <div className="text-center mt-5">
+                <Button variant="primary" size="lg" href="/jobs">Browse All Jobs</Button>
               </div>
             </div>
-          ))}
-        </div>
-        <div className="text-center mt-5">
-          <Button variant="primary" size="lg" href="/jobs">Browse All Jobs</Button>
-        </div>
-      </div>
-    ) : (
-      <div className="text-center py-5">
-        <img src="/images/no-jobs.svg" alt="No jobs found" style={{maxWidth: '300px'}} className="img-fluid mb-4" />
-        <h4 className="mb-3">No featured jobs available</h4>
-        <p className="text-muted">Check back later or browse our full job listings</p>
-        <Button variant="primary" href="/jobs">Browse Jobs</Button>
-      </div>
-    )}
-  </Container>
-</section>
+          ) : (
+            <div className="text-center py-5">
+              <img src="/images/no-jobs.svg" alt="No jobs found" style={{maxWidth: '300px'}} className="img-fluid mb-4" />
+              <h4 className="mb-3">No featured jobs available</h4>
+              <p className="text-muted">Check back later or browse our full job listings</p>
+              <Button variant="primary" href="/jobs">Browse Jobs</Button>
+            </div>
+          )}
+        </Container>
+      </section>
+
     {/* WHY CHOOSE US - ENHANCED VERSION */}
 <section className="py-5 why-choose-us">
   <Container>

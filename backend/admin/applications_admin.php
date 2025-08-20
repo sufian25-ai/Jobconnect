@@ -32,7 +32,7 @@ try {
     // Format URLs
     foreach ($applications as &$app) {
         $app['resume_url'] = $app['resume_path'] 
-            ? 'http://localhost/jobconnect/backend/uploads/resumes/' . $app['resume_path'] 
+            ? 'http://localhost/jobconnect/backend/uploads/resumes/' . $app['resume_path']
             : null;
 
         $app['applicant_image_url'] = $app['applicant_image'] 
